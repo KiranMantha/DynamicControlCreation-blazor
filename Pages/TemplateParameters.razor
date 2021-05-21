@@ -1,4 +1,4 @@
-@page "/templateparameter/{TemplateId:int}/{ParamId:int}";
+@page "/templateparameter/{TemplateId:int}/{ParamId:int}/{mode:int}";
 
 @using DynamicControlCreation_blazor.Data;
 @using DynamicControlCreation_blazor.Models.TemplatesAndParameters;
@@ -6,22 +6,23 @@
 @inject NavigationManager navigationManager;
 
 <style>
-    #tblTemplateParameter {
+    .tblTemplateParameter {
         width: 500px;
     }
 
-    #tblTemplateParameter tr th,
-    #tblTemplateParameter tr td {
-        padding: 5px;
+    .tblTemplateParameter tr th,
+    .tblTemplateParameter tr td {
+        padding: 5px 10px;
+        vertical-align: middle;
     }
 
-    #tblTemplateParameter tr th:first-child,
-    #tblTemplateParameter tr td:first-child {
+    .tblTemplateParameter tr th:first-child,
+    .tblTemplateParameter tr td:first-child {
         padding-left: 0;
     }
 
-    #tblTemplateParameter tr th:last-child,
-    #tblTemplateParameter tr td:last-child {
+    .tblTemplateParameter tr th:last-child,
+    .tblTemplateParameter tr td:last-child {
         padding-right: 0;
     }
 </style>
@@ -29,13 +30,13 @@
 <h1>Template Parameter</h1>
 <a class="btn btn-sm btn-primary mt-3" href="/template">Back</a>
 
-@if (ParamId == 0)
+@if (mode == 1)
 {
 
     <EditForm Model="@templateParameter" OnValidSubmit="@OnSubmit">
         <DataAnnotationsValidator />
         <ValidationSummary />
-        <table id="tblTemplateParameter" class="mt-3">
+        <table class="tblTemplateParameter mt-3">
             <tr>
                 <td>Template Id</td>
                 <td>@TemplateId</td>
@@ -64,24 +65,68 @@
                 <InputCheckbox @bind-Value="templateParameter.AllowMultiple"></InputCheckbox>
             </td>
         </tr>
-        <tr>
-            <td colspan="2">
-                Available values:
-                <div>
-                    <table class="table">
-                        <tr>
-                            <th>Label</th>
-                            <th>Value</th>
-                            <th>Display Index</th>
-                            <th>Action</th>
-                        </tr>
-                        <tbody>
-                            @if (templateParameter.ParameterValues.Count == 0)
+    </table>
+    <button type="submit" class="btn btn-sm btn-primary">Save Parameter</button>
+</EditForm>
+    if (templateParameter.AllowMultiple && (templateParameter.Type == (int)TemplateParameterType.String ||
+                    templateParameter.Type == (int)TemplateParameterType.Integer))
+    {
+        <table class="tblTemplateParameter mt-3">
+            <tr>
+                <td colspan="2">
+                    Available values:
+                    <div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Label</th>
+                                    <th>Value</th>
+                                    <th>Display Index</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (templateParameter.ParameterValues.Count == 0)
                                 {
                                     <tr>
                                         <td colspan="4">No Records Available</td>
                                     </tr>
                                 }
+                                else
+                                {
+                                    foreach (var paramValue in templateParameter.ParameterValues)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <input type="text" @bind="@paramValue.Label" />
+                                            </td>
+                                            <td>
+                                                <input type="text" @bind="@paramValue.Value" />
+                                            </td>
+                                            <td>
+                                                <input type="number" @bind="@paramValue.DisplayIndex" />
+                                            </td>
+                                            <td>
+                                                <span class="oi oi-cloud-upload pointer mr-3"></span>
+                                                <span class="oi oi-delete pointer"></span>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                <tr>
+                                    <td>
+                                        <input type="text" @bind="@addTemplateParameterValues.Label" />
+                                    </td>
+                                    <td>
+                                        <input type="text" @bind="@addTemplateParameterValues.Value" />
+                                    </td>
+                                    <td>
+                                        <input type="number" @bind="@addTemplateParameterValues.DisplayIndex" />
+                                    </td>
+                                    <td>
+                                        <span class="oi oi-cloud-upload pointer"></span>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -97,22 +142,44 @@
                                 <th>Action</th>
                             </tr>
                             <tbody>
-                                @if (templateParameter.ParameterDefaults.Count == 0)
+                                @if (templateParameter.ParameterDefaults.Count > 0)
+                                {
+                                    foreach (var paramDefault in templateParameter.ParameterDefaults)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <input type="text" @bind="@paramDefault.Value" />
+                                            </td>
+                                            <td>
+                                                <span class="oi oi-cloud-upload pointer mr-3"></span>
+                                                <span class="oi oi-delete pointer"></span>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
                                 {
                                     <tr>
                                         <td colspan="2">No Records Available</td>
                                     </tr>
                                 }
+                                <tr>
+                                    <td>
+                                        <input type="text" @bind="@addTemplateParameterDefaults.Value" />
+                                    </td>
+                                    <td>
+                                        <span class="oi oi-cloud-upload pointer"></span>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </td>
             </tr>
         </table>
-        <button type="submit" class="btn btn-sm btn-primary">Save Parameter</button>
-    </EditForm>
+    }
 }
-else
+else if (mode == 0)
 {
     <table class="mt-3">
         <tr>
@@ -122,6 +189,12 @@ else
         <tr>
             <td>Name</td>
             <td>@templateParameter.Name</td>
+        </tr>
+        <tr>
+            <td>Value</td>
+            <td>
+                <FormControl Model="@templateParameter" />
+            </td>
         </tr>
     </table>
 }
@@ -133,7 +206,12 @@ else
     [Parameter]
     public int ParamId { get; set; }
 
+    [Parameter]
+    public int mode { get; set; }
+
     private TemplateParameter templateParameter;
+    private TemplateParameterValues addTemplateParameterValues = new TemplateParameterValues();
+    private TemplateParameterDefaults addTemplateParameterDefaults = new TemplateParameterDefaults();
 
     protected override async Task OnInitializedAsync()
     {
