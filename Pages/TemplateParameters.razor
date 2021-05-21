@@ -1,0 +1,151 @@
+@page "/templateparameter/{TemplateId:int}/{ParamId:int}";
+
+@using DynamicControlCreation_blazor.Data;
+@using DynamicControlCreation_blazor.Models.TemplatesAndParameters;
+@inject TemplateService templateService;
+@inject NavigationManager navigationManager;
+
+<style>
+    #tblTemplateParameter {
+        width: 500px;
+    }
+
+    #tblTemplateParameter tr th,
+    #tblTemplateParameter tr td {
+        padding: 5px;
+    }
+
+    #tblTemplateParameter tr th:first-child,
+    #tblTemplateParameter tr td:first-child {
+        padding-left: 0;
+    }
+
+    #tblTemplateParameter tr th:last-child,
+    #tblTemplateParameter tr td:last-child {
+        padding-right: 0;
+    }
+</style>
+
+<h1>Template Parameter</h1>
+<a class="btn btn-sm btn-primary mt-3" href="/template">Back</a>
+
+@if (ParamId == 0)
+{
+
+    <EditForm Model="@templateParameter" OnValidSubmit="@OnSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <table id="tblTemplateParameter" class="mt-3">
+            <tr>
+                <td>Template Id</td>
+                <td>@TemplateId</td>
+            </tr>
+            <tr>
+                <td>Name</td>
+                <td>
+                    <InputText id="name" class="form-control" @bind-Value="templateParameter.Name"></InputText>
+                </td>
+            </tr>
+            <tr>
+                <td>Param type</td>
+                <td>
+                    <InputSelect id="type" class="form-control" @bind-Value="templateParameter.Type">
+                        @foreach (var type in Enum.GetValues(typeof(TemplateParameterType)))
+                        {
+                        <option value="@((int)type)">@type.ToString()</option>
+                        }
+                </InputSelect>
+                @* <GenericControl Model="@templateParameter" /> *@
+            </td>
+        </tr>
+        <tr>
+            <td>Allow multiple values</td>
+            <td>
+                <InputCheckbox @bind-Value="templateParameter.AllowMultiple"></InputCheckbox>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                Available values:
+                <div>
+                    <table class="table">
+                        <tr>
+                            <th>Label</th>
+                            <th>Value</th>
+                            <th>Display Index</th>
+                            <th>Action</th>
+                        </tr>
+                        <tbody>
+                            @if (templateParameter.ParameterValues.Count == 0)
+                                {
+                                    <tr>
+                                        <td colspan="4">No Records Available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    Default values:
+                    <div>
+                        <table class="table">
+                            <tr>
+                                <th>Value</th>
+                                <th>Action</th>
+                            </tr>
+                            <tbody>
+                                @if (templateParameter.ParameterDefaults.Count == 0)
+                                {
+                                    <tr>
+                                        <td colspan="2">No Records Available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <button type="submit" class="btn btn-sm btn-primary">Save Parameter</button>
+    </EditForm>
+}
+else
+{
+    <table class="mt-3">
+        <tr>
+            <td>Template ID</td>
+            <td>@TemplateId</td>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td>@templateParameter.Name</td>
+        </tr>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public int TemplateId { get; set; }
+
+    [Parameter]
+    public int ParamId { get; set; }
+
+    private TemplateParameter templateParameter;
+
+    protected override async Task OnInitializedAsync()
+    {
+        templateParameter = await templateService.GetParameter(TemplateId, ParamId);
+    }
+
+    private async void OnSubmit()
+    {
+        bool isSaved = await templateService.SaveTemplateParameter(templateParameter);
+        if (isSaved)
+        {
+            navigationManager.NavigateTo("/template");
+        }
+    }
+}

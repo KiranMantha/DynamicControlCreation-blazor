@@ -7,7 +7,8 @@ namespace DynamicControlCreation_blazor.Models.TemplatesAndParameters
     {
         [Key]
         public int TemplateID { get; set; }
+        [Required]
         public string Name { get; set; }
-        public List<TemplateParameters> Parameters { get; set; }
+        public List<TemplateParameter> Parameters { get; set; }
     }
 }

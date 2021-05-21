@@ -33,7 +33,14 @@
 }
 else
 {
-    <h1>Create Template</h1>
+    @if (template.TemplateID == 0)
+    {
+        <h1>Create Template</h1>
+    }
+    else
+    {
+        <h1>View Template</h1>
+    }
     <button class="btn btn-sm btn-primary" @onclick="toggleMode">Back</button>
 
     <EditForm Model="@template" class="form-inline mt-3" OnValidSubmit="@OnSubmit">
@@ -59,6 +66,7 @@ else
                     <th>Template Id</th>
                     <th>Param Name</th>
                     <th>Param Type</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -69,6 +77,10 @@ else
                         <td>@parameter.TemplateID</td>
                         <td>@parameter.Name</td>
                         <td>@parameter.Type</td>
+                        <td>
+                            <a class="btn btn-sm btn-primary"
+                    href="/templateparameter/@template.TemplateID/@parameter.TemplateParameterID">View</a>
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -100,7 +112,7 @@ else
 
     private async Task OnSubmit()
     {
-        var isSaved = await templateService.SaveTemplate(template);
+        bool isSaved = await templateService.SaveTemplate(template);
         if (isSaved)
         {
             toggleMode();

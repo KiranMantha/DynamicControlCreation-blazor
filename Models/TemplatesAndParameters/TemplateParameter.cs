@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DynamicControlCreation_blazor.Models.TemplatesAndParameters
 {
-    public class TemplateParameters
+    public class TemplateParameter
     {
-        public TemplateParameters()
+        public TemplateParameter()
         {
             ParameterValues = new List<TemplateParameterValues>();
             ParameterDefaults = new List<TemplateParameterDefaults>();
@@ -15,10 +15,10 @@ namespace DynamicControlCreation_blazor.Models.TemplatesAndParameters
             Values = new List<string>();
             AllowMultiple = false;
         }
-        private TemplateParameterType _type;
         [Key]
         public int TemplateParameterID { get; set; }
         public int TemplateID { get; set; }
+        [Required]
         public string Name { get; set; }
         public int Type { get; set; }
         public string Value { get; set; }
@@ -26,12 +26,9 @@ namespace DynamicControlCreation_blazor.Models.TemplatesAndParameters
         public List<TemplateParameterValues> ParameterValues { get; set; }
         public List<TemplateParameterDefaults> ParameterDefaults { get; set; }
         [NotMapped]
-        public TemplateParameterType Types { get { return _type; } set { _type = value; } }
-        [NotMapped]
         public List<SelectListItem> AvailableValues { get; set; }
         [NotMapped]
         public List<string> Values { get; set; }
-
     }
 
     public enum TemplateParameterType

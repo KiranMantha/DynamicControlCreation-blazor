@@ -34,13 +34,13 @@ namespace DynamicControlCreation_blazor.Data
                     }
                     else
                     {
-                        _Template.Parameters = new List<TemplateParameters>();
+                        _Template.Parameters = new List<TemplateParameter>();
                     }
                 }
             }
             else
             {
-                _Template.Parameters = new List<TemplateParameters>();
+                _Template.Parameters = new List<TemplateParameter>();
             }
             return Task.FromResult(_Template);
         }
@@ -63,9 +63,9 @@ namespace DynamicControlCreation_blazor.Data
             return Task.FromResult(true);
         }
 
-        public Task<TemplateParameters> GetParameter(int TID, int ID = 0)
+        public Task<TemplateParameter> GetParameter(int TID, int ID = 0)
         {
-            TemplateParameters _TemplateParameter = new TemplateParameters();
+            TemplateParameter _TemplateParameter = new TemplateParameter();
             if (ID != 0)
             {
                 using (var ctx = new DynamicParameterContext())
@@ -73,11 +73,91 @@ namespace DynamicControlCreation_blazor.Data
                     _TemplateParameter = ctx.TemplateParameters.Where(m => (m.TemplateParameterID == ID && m.TemplateID == TID)).FirstOrDefault();
                     _TemplateParameter.ParameterValues = ctx.TemplateParameterValues.Where(m => (m.TemplateParameterID == ID)).ToList();
                     _TemplateParameter.ParameterDefaults = ctx.TemplateParameterDefaults.Where(m => (m.TemplateParameterID == ID)).ToList();
-                    _TemplateParameter.Types = (TemplateParameterType)_TemplateParameter.Type;
                 }
+            }
+            else
+            {
+                _TemplateParameter.ParameterValues = new List<TemplateParameterValues>();
+                _TemplateParameter.ParameterDefaults = new List<TemplateParameterDefaults>();
+                _TemplateParameter.Type = (int)TemplateParameterType.NotSet;
             }
             _TemplateParameter.TemplateID = TID;
             return Task.FromResult(_TemplateParameter);
+        }
+
+        public Task<bool> SaveTemplateParameter(TemplateParameter _TemplateParameter)
+        {
+            bool isValid = true;
+            using (var ctx = new DynamicParameterContext())
+            {
+                //Check If New Model Or Existing Model
+                if (_TemplateParameter.TemplateParameterID != 0)
+                {
+                    TemplateParameter temp = ctx.TemplateParameters.Where(m => m.TemplateParameterID == _TemplateParameter.TemplateParameterID).FirstOrDefault();
+                    temp.Name = _TemplateParameter.Name;
+                    temp.Value = _TemplateParameter.Value;
+                    temp.Type = _TemplateParameter.Type;
+                    temp.AllowMultiple = _TemplateParameter.AllowMultiple;
+                }
+                else
+                {
+                    ctx.TemplateParameters.Add(_TemplateParameter);
+                }
+
+                //Add Parameter Values
+                if (_TemplateParameter.ParameterValues.Count > 0)
+                {
+                    //Remove All Template Parameter Values From DB Based On Template Parameter ID
+                    var tpv = ctx.TemplateParameterValues.Where(x => x.TemplateParameterID == _TemplateParameter.TemplateParameterID);
+                    if (tpv.Any())
+                    {
+                        ctx.TemplateParameterValues.RemoveRange(tpv);
+                    }
+
+                    //Remove Deleted Values On ClientSide
+                    _TemplateParameter.ParameterValues.RemoveAll(x => x.Deleted == true);
+
+                    //Add New Template Parameter Values To DB          
+                    foreach (TemplateParameterValues t in _TemplateParameter.ParameterValues)
+                    {
+                        ctx.TemplateParameterValues.Add(t);
+                    }
+                }
+
+                //Add Parameter Defaults
+                if (_TemplateParameter.ParameterDefaults.Count > 0)
+                {
+                    //Remove All Template Parameter Values From DB Based On Template Parameter ID
+                    var tpd = ctx.TemplateParameterDefaults.Where(x => x.TemplateParameterID == _TemplateParameter.TemplateParameterID);
+                    if (tpd.Any())
+                    {
+                        ctx.TemplateParameterDefaults.RemoveRange(tpd);
+                    }
+
+                    //Remove Deleted Values On ClientSide
+                    _TemplateParameter.ParameterDefaults.RemoveAll(x => x.Deleted == true);
+
+                    //Add New Template Parameter Values To DB
+                    foreach (TemplateParameterDefaults t in _TemplateParameter.ParameterDefaults)
+                    {
+                        if (_TemplateParameter.ParameterValues.Any(x => x.Value == t.Value))
+                            ctx.TemplateParameterDefaults.Add(t);
+                        else
+                        {
+                            isValid = false;
+                            //ModelState.AddModelError("", "Some of the default values are not found in available values. please check once.");
+                            break;
+                        }
+                    }
+                }
+
+                //Save Changes To DB
+                if (isValid)
+                {
+                    ctx.SaveChanges();
+                }
+            }
+            return Task.FromResult(isValid);
         }
     }
 }
