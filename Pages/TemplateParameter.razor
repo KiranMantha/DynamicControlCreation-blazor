@@ -1,0 +1,42 @@
+@page "/templateparameter/{TemplateId:int}/{ParamId:int}";
+
+@using DynamicControlCreation_blazor.Data;
+@using DynamicControlCreation_blazor.Models.TemplatesAndParameters;
+@inject TemplateService templateService;
+
+<h1>Template Parameter</h1>
+<a class="btn btn-sm btn-primary mt-3" href="/templates">Back</a>
+
+<EditForm Model="@templateParameter">
+    <table>
+        <tr>
+            <td>Template Id</td>
+            <td>@TemplateId</td>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td>@templateParameter.Name</td>
+        </tr>
+        <tr>
+            <td>Value</td>
+            <td>
+                @* <GenericControl Model="@templateParameter" /> *@
+            </td>
+        </tr>
+    </table>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int TemplateId { get; set; }
+
+    [Parameter]
+    public int ParamId { get; set; }
+
+    private TemplateParameters templateParameter;
+
+    protected override async Task OnInitializedAsync()
+    {
+        templateParameter = await templateService.GetParameter(TemplateId, ParamId);
+    }
+}
