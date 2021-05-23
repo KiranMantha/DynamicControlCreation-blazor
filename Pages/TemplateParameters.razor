@@ -85,33 +85,32 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @foreach (var paramValue in templateParameter.ParameterValues)
+                                {
+                                    <tr>
+                                        <td>
+                                            <input type="text" @bind="@paramValue.Label" />
+                                        </td>
+                                        <td>
+                                            <input type="text" @bind="@paramValue.Value" />
+                                        </td>
+                                        <td>
+                                            <input type="number" @bind="@paramValue.DisplayIndex" />
+                                        </td>
+                                        <td>
+                                            <span class="oi oi-cloud-upload pointer mr-3"></span>
+                                            <span class="oi oi-delete pointer"></span>
+                                        </td>
+                                    </tr>
+                                }
+
                                 @if (templateParameter.ParameterValues.Count == 0)
                                 {
                                     <tr>
                                         <td colspan="4">No Records Available</td>
                                     </tr>
                                 }
-                                else
-                                {
-                                    foreach (var paramValue in templateParameter.ParameterValues)
-                                    {
-                                        <tr>
-                                            <td>
-                                                <input type="text" @bind="@paramValue.Label" />
-                                            </td>
-                                            <td>
-                                                <input type="text" @bind="@paramValue.Value" />
-                                            </td>
-                                            <td>
-                                                <input type="number" @bind="@paramValue.DisplayIndex" />
-                                            </td>
-                                            <td>
-                                                <span class="oi oi-cloud-upload pointer mr-3"></span>
-                                                <span class="oi oi-delete pointer"></span>
-                                            </td>
-                                        </tr>
-                                    }
-                                }
+
                                 <tr>
                                     <td>
                                         <input type="text" @bind="@addTemplateParameterValues.Label" />
@@ -141,22 +140,20 @@
                                 <th>Action</th>
                             </tr>
                             <tbody>
-                                @if (templateParameter.ParameterDefaults.Count > 0)
+                                @foreach (var paramDefault in templateParameter.ParameterDefaults)
                                 {
-                                    foreach (var paramDefault in templateParameter.ParameterDefaults)
-                                    {
-                                        <tr>
-                                            <td>
-                                                <input type="text" @bind="@paramDefault.Value" />
-                                            </td>
-                                            <td>
-                                                <span class="oi oi-cloud-upload pointer mr-3"></span>
-                                                <span class="oi oi-delete pointer"></span>
-                                            </td>
-                                        </tr>
-                                    }
+                                    <tr>
+                                        <td>
+                                            <input type="text" @bind="@paramDefault.Value" />
+                                        </td>
+                                        <td>
+                                            <span class="oi oi-cloud-upload pointer mr-3"></span>
+                                            <span class="oi oi-delete pointer"></span>
+                                        </td>
+                                    </tr>
                                 }
-                                else
+
+                                @if (templateParameter.ParameterDefaults.Count == 0)
                                 {
                                     <tr>
                                         <td colspan="2">No Records Available</td>
