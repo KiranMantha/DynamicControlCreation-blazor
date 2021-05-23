@@ -1,0 +1,35 @@
+@using DynamicControlCreation_blazor.Data;
+@using DynamicControlCreation_blazor.Models.TemplatesAndParameters;
+@inject TemplateService templateService;
+
+<h1>Templates</h1>
+<a class="btn btn-sm btn-primary" href="/template/0">Create Template</a>
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Template Id</th>
+            <th>Name</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var template in templates)
+        {
+            <tr>
+                <td>@template.TemplateID</td>
+                <td>@template.Name</td>
+                <td>
+                    <a class="btn btn-sm btn-primary" href="/template/@template.TemplateID">View</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Template> templates = new List<Template>();
+    protected override async Task OnInitializedAsync()
+    {
+        templates = await templateService.GetTemplates();
+    }
+}

@@ -1,124 +1,30 @@
 @page "/template";
-
-@using DynamicControlCreation_blazor.Data;
-@using DynamicControlCreation_blazor.Models.TemplatesAndParameters;
-@inject TemplateService templateService;
+@page "/template/{TemplateId:int}";
 
 @if (inListMode)
 {
-    <h1>Templates</h1>
-    <button class="btn btn-sm btn-primary" @onclick="() => createTemplate(0)">Create Template</button>
-    <table class="table mt-3">
-        <thead>
-            <tr>
-                <th>Template Id</th>
-                <th>Name</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var template in templates)
-            {
-                <tr>
-                    <td>@template.TemplateID</td>
-                    <td>@template.Name</td>
-                    <td>
-                        <button class="btn btn-sm btn-primary"
-                    @onclick="() => createTemplate(template.TemplateID)">View</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <ListTemplates />
 }
 else
 {
-    @if (template.TemplateID == 0)
-    {
-        <h1>Create Template</h1>
-    }
-    else
-    {
-        <h1>View Template</h1>
-    }
-    <button class="btn btn-sm btn-primary" @onclick="toggleMode">Back</button>
-
-    <EditForm Model="@template" class="form-inline mt-3" OnValidSubmit="@OnSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-        <div class="form-group">
-            <InputText id="name" class="form-control" @bind-Value="template.Name"></InputText>
-        </div>
-        <button type="submit" class="btn btn-sm btn-primary ml-3">Save</button>
-    </EditForm>
-
-    @if (!string.IsNullOrEmpty(template.Name))
-    {
-        <a class="mt-3" href="/templateparameter/@template.TemplateID/0">Create Template Parameter</a>
-    }
-
-    @if (template.Parameters.Count > 0)
-    {
-        <table class="table mt-3">
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Template Id</th>
-                    <th>Param Name</th>
-                    <th>Param Type</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var parameter in template.Parameters)
-                {
-                    <tr>
-                        <td>@parameter.TemplateParameterID</td>
-                        <td>@parameter.TemplateID</td>
-                        <td>@parameter.Name</td>
-                        <td>@parameter.Type</td>
-                        <td>
-                            <a class="btn btn-sm btn-primary"
-                    href="/templateparameter/@template.TemplateID/@parameter.TemplateParameterID/1">Edit</a>
-                            <a class="btn btn-sm btn-primary"
-                    href="/templateparameter/@template.TemplateID/@parameter.TemplateParameterID/0">View</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
+    <CreateTemplate TemplateId="@((int)TemplateId)" />
 }
 
 @code {
-    private List<Template> templates = new List<Template>();
+
+    [Parameter]
+    public int? TemplateId { get; set; }
     private bool inListMode = true;
-    private Template template;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnParametersSet()
     {
-        templates = await templateService.GetTemplates();
-    }
-
-    private void toggleMode()
-    {
-        inListMode = !inListMode;
-    }
-
-    private async Task createTemplate(int templateId)
-    {
-        Console.WriteLine("Some content logged in Blazor App output window");
-        template = await templateService.GetTemplate(templateId);
-        toggleMode();
-    }
-
-    private async Task OnSubmit()
-    {
-        bool isSaved = await templateService.SaveTemplate(template);
-        if (isSaved)
+        if (TemplateId == null)
         {
-            toggleMode();
-            templates = await templateService.GetTemplates();
+            inListMode = true;
+        }
+        else
+        {
+            inListMode = false;
         }
     }
 }
