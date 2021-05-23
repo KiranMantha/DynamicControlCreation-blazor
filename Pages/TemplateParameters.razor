@@ -223,7 +223,7 @@ else if (mode == 0)
         bool isSaved = await templateService.SaveTemplateParameter(templateParameter);
         if (isSaved)
         {
-            navigationManager.NavigateTo("/template");
+            navigationManager.NavigateTo("/template/" + templateParameter.TemplateID);
         }
     }
 }
