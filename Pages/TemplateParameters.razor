@@ -32,7 +32,6 @@
 
 @if (mode == 1)
 {
-
     <EditForm Model="@templateParameter" OnValidSubmit="@OnSubmit">
         <DataAnnotationsValidator />
         <ValidationSummary />
@@ -44,7 +43,8 @@
             <tr>
                 <td>Name</td>
                 <td>
-                    <InputText id="name" class="form-control" @bind-Value="templateParameter.Name"></InputText>
+                    <InputText id="name" class="form-control" aria-placeholder="Template parameter name"
+                    placeholder="Template parameter name" @bind-Value="templateParameter.Name"></InputText>
                 </td>
             </tr>
             <tr>
@@ -56,7 +56,6 @@
                         <option value="@((int)type)">@type.ToString()</option>
                         }
                 </InputSelect>
-                @* <GenericControl Model="@templateParameter" /> *@
             </td>
         </tr>
         <tr>
