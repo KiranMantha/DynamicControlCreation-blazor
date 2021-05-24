@@ -11,7 +11,6 @@ namespace DynamicControlCreation_blazor.Models.TemplatesAndParameters
         {
             ParameterValues = new List<TemplateParameterValues>();
             ParameterDefaults = new List<TemplateParameterDefaults>();
-            AvailableValues = new List<SelectListItem>();
             Values = new List<string>();
             AllowMultiple = false;
         }
@@ -25,8 +24,7 @@ namespace DynamicControlCreation_blazor.Models.TemplatesAndParameters
         public bool AllowMultiple { get; set; }
         public List<TemplateParameterValues> ParameterValues { get; set; }
         public List<TemplateParameterDefaults> ParameterDefaults { get; set; }
-        [NotMapped]
-        public List<SelectListItem> AvailableValues { get; set; }
+
         [NotMapped]
         public List<string> Values { get; set; }
     }

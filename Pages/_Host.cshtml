@@ -7,6 +7,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,6 +17,7 @@
     <link href="css/site.css" rel="stylesheet" />
     <link href="DynamicControlCreation-blazor.styles.css" rel="stylesheet" />
 </head>
+
 <body>
     <component type="typeof(App)" render-mode="ServerPrerendered" />
 
@@ -31,5 +33,44 @@
     </div>
 
     <script src="_framework/blazor.server.js"></script>
+    <script>
+        window.valOf = function (sel, value) {
+            debugger;
+
+            if (arguments.length === 1) {
+                if (['select-one', 'select-multiple'].some(function (x) { return x === sel.type })) {
+                    if (sel.type === 'select-multiple') {
+                        var results = [];
+                        var i;
+                        for (i = 0; i < sel.options.length; i++) {
+                            if (sel.options[i].selected) {
+                                results[results.length] = sel.options[i].value;
+                            }
+                        }
+                        return results;
+                    } else {
+                        return sel.options[sel.selectedIndex].value;
+                    }
+                } else {
+                    return sel.value;
+                }
+            } else {
+                if (['select-one', 'select-multiple'].some(function (x) { return x === sel.type })) {
+                    if (sel.type === 'select-multiple') {
+                        for (i = 0; i < sel.options.length; i++) {
+                            if (value.some(function (x) { return x === sel.options[i].value })) {
+                                sel.options[i].selected = true;
+                            }
+                        }
+                    } else {
+                        Array.from(sel.options).filter(o => o.value === value).selected = true;
+                    }
+                } else {
+                    sel.value = value;
+                }
+            }
+        };
+    </script>
 </body>
+
 </html>

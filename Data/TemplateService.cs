@@ -72,7 +72,23 @@ namespace DynamicControlCreation_blazor.Data
                 {
                     _TemplateParameter = ctx.TemplateParameters.Where(m => (m.TemplateParameterID == ID && m.TemplateID == TID)).FirstOrDefault();
                     _TemplateParameter.ParameterValues = ctx.TemplateParameterValues.Where(m => (m.TemplateParameterID == ID)).ToList();
+                    _TemplateParameter.ParameterValues.Sort(delegate (TemplateParameterValues x, TemplateParameterValues y)
+                    {
+                        return x.DisplayIndex.CompareTo(y.DisplayIndex);
+                    });
                     _TemplateParameter.ParameterDefaults = ctx.TemplateParameterDefaults.Where(m => (m.TemplateParameterID == ID)).ToList();
+                    _TemplateParameter.Values = new List<string>();
+                    if (_TemplateParameter.ParameterDefaults.Count > 0)
+                    {
+                        if (_TemplateParameter.AllowMultiple)
+                        {
+                            _TemplateParameter.Values = _TemplateParameter.ParameterDefaults.Select(m => m.Value).ToList();
+                        }
+                        else
+                        {
+                            _TemplateParameter.Values.Add(_TemplateParameter.ParameterDefaults.Select(m => m.Value).LastOrDefault());
+                        }
+                    }
                 }
             }
             else
@@ -140,13 +156,20 @@ namespace DynamicControlCreation_blazor.Data
                     //Add New Template Parameter Values To DB
                     foreach (TemplateParameterDefaults t in _TemplateParameter.ParameterDefaults)
                     {
-                        if (_TemplateParameter.ParameterValues.Any(x => x.Value == t.Value))
-                            ctx.TemplateParameterDefaults.Add(t);
+                        if (_TemplateParameter.ParameterValues.Count > 0)
+                        {
+                            if (_TemplateParameter.ParameterValues.Any(x => x.Value == t.Value))
+                                ctx.TemplateParameterDefaults.Add(t);
+                            else
+                            {
+                                isValid = false;
+                                //ModelState.AddModelError("", "Some of the default values are not found in available values. please check once.");
+                                break;
+                            }
+                        }
                         else
                         {
-                            isValid = false;
-                            //ModelState.AddModelError("", "Some of the default values are not found in available values. please check once.");
-                            break;
+                            ctx.TemplateParameterDefaults.Add(t);
                         }
                     }
                 }

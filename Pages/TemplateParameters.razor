@@ -67,10 +67,10 @@
     </table>
     <button type="submit" class="btn btn-sm btn-primary">Save Parameter</button>
 </EditForm>
-    if (templateParameter.AllowMultiple && (templateParameter.Type == (int)TemplateParameterType.String ||
-                    templateParameter.Type == (int)TemplateParameterType.Integer))
+    @if ( (templateParameter.Type == (int)TemplateParameterType.String ||
+   templateParameter.Type == (int)TemplateParameterType.Integer))
     {
-        <table class="tblTemplateParameter mt-3">
+        <table class="tblTemplateParameter mt-3">            
             <tr>
                 <td colspan="2">
                     Available values:
@@ -100,9 +100,9 @@
                                         <td>
                                             <div class="text-nowrap">
                                                 <span title="Save" class="oi oi-cloud-upload pointer mr-3"
-                                        @onclick="() => saveParameterValue(paramValue)"></span>
+                                    @onclick="() => saveParameterValue(paramValue)"></span>
                                                 <span title="Delete" class="oi oi-delete pointer"
-                                        @onclick="() => saveParameterValue(paramValue, true)"></span>
+                                    @onclick="() => saveParameterValue(paramValue, true)"></span>
                                             </div>
                                         </td>
                                     </tr>
@@ -127,14 +127,14 @@
                                     </td>
                                     <td>
                                         <span title="Save" class="oi oi-cloud-upload pointer"
-                                    @onclick="() => saveParameterValue(addTemplateParameterValues)"></span>
+                                @onclick="() => saveParameterValue(addTemplateParameterValues)"></span>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </td>
-            </tr>
+            </tr>            
             <tr>
                 <td colspan="2">
                     Default values:
@@ -187,7 +187,7 @@
 }
 else if (mode == 0)
 {
-    <table class="mt-3">
+    <table class="tblTemplateParameter mt-3">
         <tr>
             <td>Template ID</td>
             <td>@TemplateId</td>

@@ -46,7 +46,7 @@ else
                     <td>@parameter.TemplateParameterID</td>
                     <td>@parameter.TemplateID</td>
                     <td>@parameter.Name</td>
-                    <td>@parameter.Type</td>
+                    <td>@((TemplateParameterType)parameter.Type)</td>
                     <td>
                         <a class="btn btn-sm btn-primary"
                     href="/templateparameter/@template.TemplateID/@parameter.TemplateParameterID/1">Edit</a>

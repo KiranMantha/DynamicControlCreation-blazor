@@ -1,8 +1,86 @@
-@typeparam TItem;
+@using DynamicControlCreation_blazor.Models.TemplatesAndParameters;
+@inject IJSRuntime JS;
 
-<p>Control in progress</p>
+@switch ((TemplateParameterType)Model.Type)
+{
+    case TemplateParameterType.String:
+    case TemplateParameterType.Integer:
+        {
+            if (Model.AllowMultiple)
+            {
+                <select @ref="formcontrol" multiple="multiple" @onchange="() => updateModel(true)">
+                    @foreach (var param in Model.ParameterValues)
+                    {
+                        <option value="@param.Value">@param.Label</option>
+                    }
+                </select>
+            }
+            else
+            {
+                if (Model.Type == (int)TemplateParameterType.String)
+                {
+                    <input @ref="formcontrol" type="text" value="@(Model.Values.FirstOrDefault())" @onchange="() => updateModel()" />
+                }
+                else
+                {
+                    <input @ref="formcontrol" type="number" value="@(Model.Values.FirstOrDefault())" @onchange="() => updateModel()" />
+                }
+            }
+            break;
+        }
+
+    case TemplateParameterType.Bool:
+        {
+            <select @ref="formcontrol" class="form-control" value="@(Model.Values.FirstOrDefault())"
+    @onchange="() => updateModel()">
+                <option>Select</option>
+                <option value="true">True</option>
+                <option value="false">False</option>
+            </select>
+            break;
+        }
+}
 
 @code {
     [Parameter]
-    public TItem Model { get; set; }
+    public TemplateParameter Model { get; set; }
+    private ElementReference formcontrol;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (Model.AllowMultiple)
+        {
+            setValue();
+        }
+    }
+
+    private async void updateModel(bool isMultiselect = false)
+    {
+        if (isMultiselect)
+        {
+            List<string> selection = await GetValues();
+            Model.Values = selection;
+        }
+        else
+        {
+            string value = await getValue();
+            Model.Values.Clear();
+            Model.Values.Add(value);
+        }
+    }
+
+    private async Task<List<string>> GetValues()
+    {
+        return (await JS.InvokeAsync<List<string>>("valOf", formcontrol)).ToList();
+    }
+
+    private async Task<string> getValue()
+    {
+        return (await JS.InvokeAsync<List<string>>("valOf", formcontrol)).ToString();
+    }
+
+    private async void setValue()
+    {
+        await JS.InvokeVoidAsync("valOf", formcontrol, Model.Values);
+    }
 }
