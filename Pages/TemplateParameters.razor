@@ -98,8 +98,12 @@
                                             <input type="number" @bind="@paramValue.DisplayIndex" />
                                         </td>
                                         <td>
-                                            <span class="oi oi-cloud-upload pointer mr-3"></span>
-                                            <span class="oi oi-delete pointer"></span>
+                                            <div class="text-nowrap">
+                                                <span title="Save" class="oi oi-cloud-upload pointer mr-3"
+                                        @onclick="() => saveParameterValue(paramValue)"></span>
+                                                <span title="Delete" class="oi oi-delete pointer"
+                                        @onclick="() => saveParameterValue(paramValue, true)"></span>
+                                            </div>
                                         </td>
                                     </tr>
                                 }
@@ -122,7 +126,8 @@
                                         <input type="number" @bind="@addTemplateParameterValues.DisplayIndex" />
                                     </td>
                                     <td>
-                                        <span class="oi oi-cloud-upload pointer"></span>
+                                        <span title="Save" class="oi oi-cloud-upload pointer"
+                                    @onclick="() => saveParameterValue(addTemplateParameterValues)"></span>
                                     </td>
                                 </tr>
                             </tbody>
@@ -147,8 +152,12 @@
                                             <input type="text" @bind="@paramDefault.Value" />
                                         </td>
                                         <td>
-                                            <span class="oi oi-cloud-upload pointer mr-3"></span>
-                                            <span class="oi oi-delete pointer"></span>
+                                            <div class="text-nowrap">
+                                                <span title="Save" class="oi oi-cloud-upload pointer mr-3"
+                                        @onclick="() => saveParameterDefault(paramDefault)"></span>
+                                                <span title="Delete" class="oi oi-delete pointer"
+                                        @onclick="() => saveParameterDefault(paramDefault, true)"></span>
+                                            </div>
                                         </td>
                                     </tr>
                                 }
@@ -164,7 +173,8 @@
                                         <input type="text" @bind="@addTemplateParameterDefaults.Value" />
                                     </td>
                                     <td>
-                                        <span class="oi oi-cloud-upload pointer"></span>
+                                        <span title="Save" class="oi oi-cloud-upload pointer"
+                                    @onclick="() => saveParameterDefault(addTemplateParameterDefaults)"></span>
                                     </td>
                                 </tr>
                             </tbody>
@@ -220,6 +230,48 @@ else if (mode == 0)
         if (isSaved)
         {
             navigationManager.NavigateTo("/template/" + templateParameter.TemplateID);
+        }
+    }
+
+    private async Task saveParameterValue(TemplateParameterValues templateParameterValues, bool isDeleted = false)
+    {
+        if (templateParameterValues.ID == 0)
+        {
+            templateParameterValues.TemplateParameterID = templateParameter.TemplateParameterID;
+            templateParameter.ParameterValues.Add(templateParameterValues);
+        }
+        else
+        {
+            int index = templateParameter.ParameterValues.IndexOf(templateParameterValues);
+            templateParameter.ParameterValues[index].Label = templateParameterValues.Label;
+            templateParameter.ParameterValues[index].Value = templateParameterValues.Value;
+            templateParameter.ParameterValues[index].DisplayIndex = templateParameterValues.DisplayIndex;
+            templateParameter.ParameterValues[index].Deleted = isDeleted;
+        }
+        bool isSaved = await templateService.SaveTemplateParameter(templateParameter);
+        if (isSaved)
+        {
+            addTemplateParameterValues = new TemplateParameterValues();
+        }
+    }
+
+    private async Task saveParameterDefault(TemplateParameterDefaults templateParameterDefaults, bool isDeleted = false)
+    {
+        if (templateParameterDefaults.ID == 0)
+        {
+            templateParameterDefaults.TemplateParameterID = templateParameter.TemplateParameterID;
+            templateParameter.ParameterDefaults.Add(templateParameterDefaults);
+        }
+        else
+        {
+            int index = templateParameter.ParameterDefaults.IndexOf(templateParameterDefaults);
+            templateParameter.ParameterDefaults[index].Value = templateParameterDefaults.Value;
+            templateParameter.ParameterDefaults[index].Deleted = isDeleted;
+        }
+        bool isSaved = await templateService.SaveTemplateParameter(templateParameter);
+        if (isSaved)
+        {
+            addTemplateParameterDefaults = new TemplateParameterDefaults();
         }
     }
 }
